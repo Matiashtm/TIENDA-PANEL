@@ -413,9 +413,12 @@
                         </tbody>
                     </table>
                     <h2>Total de Compra: $${comprasFiltradas.reduce((acc, item) => acc + parseFloat(item.total), 0).toFixed(2)}</h2>
+                    <button id="impresion" onclick="imprimir_en_pdf()">IMPRIMIR EN PDF</button>
                 </body>
                 </html>
             `);
+        }
+        function imprimir_en_pdf(){
             ventanaImpresion.document.close();
             ventanaImpresion.print();
         }
