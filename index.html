@@ -233,7 +233,7 @@
             <label for="codigoCompra">Filtrar por Código de Compra:</label><br>
             <input type="number" id="codigoCompra" placeholder="Ingrese el código de compra">
             <button onclick="filtrarCompra()">Filtrar</button>
-            <button id="imprimirBtn" onclick="imprimirOrden()">IMPRIMIR ORDEN DE COMPRA</button>
+            <button id="imprimirBtn" onclick="imprimirOrden() ; imprimir_en_pdf()";>IMPRIMIR ORDEN DE COMPRA</button>
         </div>
         <h2 id="totalCompra">Total de Compra: $0</h2>
         <div class="table-container">
@@ -413,7 +413,6 @@
                         </tbody>
                     </table>
                     <h2>Total de Compra: $${comprasFiltradas.reduce((acc, item) => acc + parseFloat(item.total), 0).toFixed(2)}</h2>
-                    <button id="impresion" onclick="imprimir_en_pdf()">IMPRIMIR EN PDF</button>
                 </body>
                 </html>
             `);
