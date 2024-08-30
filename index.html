@@ -1,0 +1,425 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ingreso y Tabla de Compras</title>
+    <style>
+        /* Reset básico para asegurar consistencia entre navegadores */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        #loginForm, #mainContent {
+            background-color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+            width: 100%;
+            max-width: 500px; /* Aumentado para mayor flexibilidad */
+            box-sizing: border-box;
+        }
+
+        #loginForm input[type="text"], 
+        #loginForm input[type="password"], 
+        #loginForm button {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            box-shadow: 0 2px 6px rgba(255, 255, 255, 0.1);
+            background-color: #444;
+            color: white;
+            font-size: 16px;
+        }
+
+        #loginForm button {
+            background-color: #555;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #loginForm button:hover {
+            background-color: #666;
+        }
+
+        #mainContent {
+            display: none;
+            max-width: 1000px; /* Mayor ancho para la tabla */
+            width: 100%;
+        }
+
+        #banner {
+            background-color: #444;
+            padding: 15px;
+            text-align: center;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        #filtro {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        #filtro input[type="number"] {
+            width: 70%;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            margin-bottom: 10px;
+            background-color: #444;
+            color: white;
+            box-shadow: 0 2px 6px rgba(255, 255, 255, 0.1);
+            font-size: 16px;
+        }
+
+        #filtro button {
+            width: 28%;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        #totalCompra {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        /* Contenedor para la tabla con scroll horizontal en pantallas pequeñas */
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            min-width: 800px; /* Ancho mínimo para mantener la legibilidad */
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #555;
+            background-color: #444;
+            font-size: 14px;
+        }
+
+        th {
+            background-color: #555;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .estado-nuevo {
+            color: #4CAF50;
+        }
+
+        .estado-contactado {
+            color: #FFEB3B;
+        }
+
+        .estado-vendido {
+            color: #FF9800;
+        }
+
+        .estado-enviado {
+            color: #F44336;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            background-color: #555;
+            border: none;
+            color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 6px rgba(255, 255, 255, 0.1);
+            transition: background-color 0.3s;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #666;
+        }
+
+        #imprimirBtn {
+            margin-left: 10px;
+        }
+
+        @media (max-width: 768px) {
+            #filtro input[type="number"] {
+                width: 100%;
+            }
+
+            #filtro button {
+                width: 100%;
+                margin-top: 10px;
+            }
+
+            table {
+                min-width: 600px; /* Ajuste para pantallas medianas */
+            }
+        }
+
+        @media (max-width: 480px) {
+            #loginForm, #mainContent {
+                padding: 15px;
+                max-width: 100%;
+            }
+
+            #filtro input[type="number"], #filtro button {
+                font-size: 14px;
+                padding: 8px;
+            }
+
+            th, td {
+                padding: 8px;
+                font-size: 12px;
+            }
+
+            button {
+                padding: 8px 15px;
+                font-size: 14px;
+            }
+
+            table {
+                min-width: 500px; /* Ajuste para pantallas pequeñas */
+            }
+
+            h2 {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="loginForm">
+        <h2>Ingreso</h2>
+        <input type="text" id="username" placeholder="Usuario">
+        <input type="password" id="password" placeholder="Contraseña">
+        <button onclick="login()">INGRESAR</button>
+    </div>
+
+    <div id="mainContent">
+        <div id="banner">
+            <h1>Tabla de Compras</h1>
+        </div>
+        <div id="filtro">
+            <label for="codigoCompra">Filtrar por Código de Compra:</label><br>
+            <input type="number" id="codigoCompra" placeholder="Ingrese el código de compra">
+            <button onclick="filtrarCompra()">Filtrar</button>
+            <button id="imprimirBtn" onclick="imprimirOrden()">IMPRIMIR ORDEN DE COMPRA</button>
+        </div>
+        <h2 id="totalCompra">Total de Compra: $0</h2>
+        <div class="table-container">
+            <table id="tablaCompras">
+                <thead>
+                    <tr>
+                        <th>Código Compra</th>
+                        <th>Cliente</th>
+                        <th>Medio de Pago</th>
+                        <th>Cantidad</th>
+                        <th>Código</th>
+                        <th>Descripción</th>
+                        <th>Nombre</th>
+                        <th>Precio</th>
+                        <th>Talle</th>
+                        <th>Total</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody id="tbodyCompras">
+                    <!-- Los datos se llenarán aquí dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const sheetUrl = 'https://sheet.best/api/sheets/b72462f6-97d1-4d47-bab4-b3db0aaea342';
+        let compras = [];
+        let estadoColores = {
+            'NUEVO': 'estado-nuevo',
+            'CONTACTADO': 'estado-contactado',
+            'VENDIDO': 'estado-vendido',
+            'ENVIADO': 'estado-enviado'
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedEstado = JSON.parse(localStorage.getItem('estadoCompras')) || {};
+            fetch(sheetUrl)
+                .then(response => response.json())
+                .then(data => {
+                    compras = data.sort((a, b) => b['codigo.compra'] - a['codigo.compra']);
+                    compras.forEach((item) => {
+                        item.estado = savedEstado[item['codigo.compra']] || 'NUEVO';
+                    });
+                    renderTable(compras);
+                })
+                .catch(error => {
+                    console.error('Error al obtener los datos:', error);
+                });
+        });
+
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            if (username === '1' && password === '1') {
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+            } else {
+                alert('Usuario o contraseña incorrectos');
+            }
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('tbodyCompras');
+            tbody.innerHTML = '';
+            let total = 0;
+
+            data.forEach((item, index) => {
+                total += parseFloat(item.total);
+                const row = document.createElement('tr');
+
+                row.innerHTML = `
+                    <td>${item['codigo.compra']}</td>
+                    <td>${item.cliente}</td>
+                    <td>${item['medio de pago']}</td>
+                    <td>${item.cantidad}</td>
+                    <td>${item.codigo}</td>
+                    <td>${item.descripcion}</td>
+                    <td>${item.nombre}</td>
+                    <td>$${parseFloat(item.precio).toFixed(2)}</td>
+                    <td>${item.talle}</td>
+                    <td>$${parseFloat(item.total).toFixed(2)}</td>
+                    <td class="${estadoColores[item.estado]}">
+                        <select onchange="cambiarEstado(this, ${index})">
+                            <option value="NUEVO" class="estado-nuevo" ${item.estado === 'NUEVO' ? 'selected' : ''}>NUEVO</option>
+                            <option value="CONTACTADO" class="estado-contactado" ${item.estado === 'CONTACTADO' ? 'selected' : ''}>CONTACTADO</option>
+                            <option value="VENDIDO" class="estado-vendido" ${item.estado === 'VENDIDO' ? 'selected' : ''}>VENDIDO</option>
+                            <option value="ENVIADO" class="estado-enviado" ${item.estado === 'ENVIADO' ? 'selected' : ''}>ENVIADO</option>
+                        </select>
+                    </td>
+                `;
+
+                tbody.appendChild(row);
+            });
+
+            document.getElementById('totalCompra').textContent = `Total de Compra: $${total.toFixed(2)}`;
+        }
+
+        function cambiarEstado(selectElement, index) {
+            const nuevoEstado = selectElement.value;
+            compras[index].estado = nuevoEstado;
+            guardarEstado();
+            renderTable(compras);
+        }
+
+        function guardarEstado() {
+            const estadoCompras = {};
+            compras.forEach(item => {
+                estadoCompras[item['codigo.compra']] = item.estado;
+            });
+            localStorage.setItem('estadoCompras', JSON.stringify(estadoCompras));
+        }
+
+        function filtrarCompra() {
+            const codigo = document.getElementById('codigoCompra').value.trim();
+            if (codigo === "") {
+                renderTable(compras);
+                return;
+            }
+            const comprasFiltradas = compras.filter(item => item['codigo.compra'].toString().includes(codigo));
+            renderTable(comprasFiltradas);
+        }
+
+        function imprimirOrden() {
+            const codigoCompra = document.getElementById('codigoCompra').value.trim();
+            if (codigoCompra === "") {
+                alert('Por favor, ingrese un código de compra para imprimir.');
+                return;
+            }
+            const comprasFiltradas = compras.filter(item => item['codigo.compra'].toString() === codigoCompra);
+            if (comprasFiltradas.length === 0) {
+                alert('No se encontraron compras con el código proporcionado.');
+                return;
+            }
+
+            // Crear una nueva ventana para imprimir
+            const ventanaImpresion = window.open('', '_blank');
+            ventanaImpresion.document.write(`
+                <html>
+                <head>
+                    <title>Orden de Compra ${codigoCompra}</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 20px; }
+                        h1 { text-align: center; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                        th, td { border: 1px solid #000; padding: 8px; text-align: center; }
+                        th { background-color: #f2f2f2; }
+                    </style>
+                </head>
+                <body>
+                    <h1>Orden de Compra: ${codigoCompra}</h1>
+                    <p><strong>Cliente:</strong> ${comprasFiltradas[0].cliente}</p>
+                    <p><strong>Medio de Pago:</strong> ${comprasFiltradas[0]['medio de pago']}</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Cantidad</th>
+                                <th>Código</th>
+                                <th>Nombre</th>
+                                <th>Talle</th>
+                                <th>Precio Individual</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${comprasFiltradas.map(item => `
+                                <tr>
+                                    <td>${item.cantidad}</td>
+                                    <td>${item.codigo}</td>
+                                    <td>${item.nombre}</td>
+                                    <td>${item.talle}</td>
+                                    <td>$${parseFloat(item.precio).toFixed(2)}</td>
+                                    <td>$${parseFloat(item.total).toFixed(2)}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                    <h2>Total de Compra: $${comprasFiltradas.reduce((acc, item) => acc + parseFloat(item.total), 0).toFixed(2)}</h2>
+                </body>
+                </html>
+            `);
+            ventanaImpresion.document.close();
+            ventanaImpresion.print();
+            ventanaImpresion.close();
+        }
+    </script>
+</body>
+</html>
